@@ -1,0 +1,1 @@
+[![D3 visualization - Sampling & Multi-Dimension Scaling](https://i.ibb.co/W35Dv5b/https-i-ytimg-com-vi-1mgs-Vd58gvw-maxresdefault.jpg)](https://www.youtube.com/watch?v=1mgsVd58gvw "D3 visualization - Sampling & Multi-Dimension Scaling")
