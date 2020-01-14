@@ -1,0 +1,588 @@
+<!doctype html>
+<html>
+<head>
+    <style>
+		body {
+			 background-image:url("bg.jpg");
+		}
+
+		text {
+		  font-family: sans-serif;
+		  font-size: 10px;
+		}
+		
+		.links line {
+		  stroke: #999;
+		  stroke-opacity: 0.6;
+		}
+
+		.nodes circle {
+		  stroke: #fff;
+		  stroke-width: 1.5px;
+		}
+		
+		#bar_chart {
+			position: absolute;
+			left: 20%;
+			right: 20%;
+			background: rgba(206, 234, 246, 0.7); 
+			border: 3px solid white;
+			top: 12%;
+			z-index: 1;
+			bottom:20%;
+		}
+		
+		.legend {
+		  font-family: "Verdana";
+		  font-size: .7em;
+		}
+		
+		#pie_chart {
+			position: absolute;
+			top: 12%;
+			left: 20%;
+			right: 20%;
+			visibility: hidden;
+			background: rgba(206, 234, 246, 0.7); 
+			border: 3px solid white;
+			bottom:20%;
+		}
+		
+		#force_directed_graph {
+			position: absolute;
+			top: 12%;
+			left: 20%;
+			right: 20%;
+			visibility: hidden;
+			background: rgba(206, 234, 246, 0.7); 
+			border: 3px solid white;
+			bottom:20%;
+		}
+		
+		#dropdown {
+			position: absolute;
+			left: 22%;
+			top: 8%;
+		}
+		#head {
+			position: absolute;
+			left: 38%;
+			top: 3%;
+			font-size: 22px;
+		}
+		#switch {
+			position: absolute;
+			left: 62%;
+			top: 8%;
+		}
+		#slider {
+			position: absolute;
+			left: 20%;
+			top: 83%;
+			right:20%;
+		}
+		
+		.pie {
+		  margin: 20px;
+		}
+
+		
+    </style>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+<body>
+<div id = "head"> National Health and Nutrition Examination Diet Survey </div>
+<div id = "dropdown">Select Variable : </div>
+<div id="switch"> 
+<!--
+    <input id = "switch_button"
+           type="button" 
+           value="Change to Pie Chart" 
+           onclick="switchView()" /> -->
+
+	<form name="form_r">
+	   
+	<input type="radio" name="view" value="0" checked="checked"> Bar Chart
+	<input type="radio" name="view" value="1"> Pie Chart
+	<input type="radio" name="view" value="2"> Force Directed Graph
+	</form>
+</div>
+<div id= "bar_chart"></div>
+<div id= "pie_chart"> </div>
+<div id= "force_directed_graph"> </div>
+<div id = "slider"> </div>
+<script>
+
+	var radios = document.forms["form_r"].elements["view"];
+	for(var i = 0, max = radios.length; i < max; i++) {
+    radios[i].onclick = function() {
+        if (this.value == 0) {
+			d3.select("#bar_chart").style("visibility", "visible");
+			d3.select("#pie_chart").style("visibility", "hidden");
+			d3.select("#force_directed_graph").style("visibility", "hidden");
+			d3.select("#slider").style("visibility", "visible");
+		} else if (this.value == 1) {
+			d3.select("#bar_chart").style("visibility", "hidden");
+			d3.select("#pie_chart").style("visibility", "visible");
+			d3.select("#force_directed_graph").style("visibility", "hidden");
+			d3.select("#slider").style("visibility", "visible");
+		} else {
+			d3.select("#bar_chart").style("visibility", "hidden");
+			d3.select("#pie_chart").style("visibility", "hidden");
+			d3.select("#force_directed_graph").style("visibility", "visible");
+			d3.select("#slider").style("visibility", "hidden");
+
+		}
+    }
+}
+
+	var bar_chart_visible = 1;
+	var cur_num_bins = 2;
+	
+	/*function switchView() {
+		if (bar_chart_visible == 0) {
+			d3.select("#switch_button").attr("value", "Change to Pie Chart");
+			d3.select("#bar_chart").style("visibility", "visible");
+			d3.select("#pie_chart").style("visibility", "hidden");
+			bar_chart_visible = 1;
+		} else {
+			d3.select("#switch_button").attr("value", "Change to Bar Chart");
+			d3.select("#bar_chart").style("visibility", "hidden");
+			d3.select("#pie_chart").style("visibility", "visible");
+			bar_chart_visible = 0;
+
+		}		
+	}*/
+
+	function drawSlider(data, col_name) {
+		
+		d3.select("#slider").selectAll(".svg_slider").remove();
+
+		var color = "#51CB3F";
+		var emptyColor = "#AEAEAE";
+		var thumbColor = "white";
+		var lineWidth = 6;
+		var thumbSize = 8;
+		
+		var minValue = 180;
+		var maxValue = 1000;
+		var width = maxValue - minValue;
+
+		var svg_slider = d3.select("#slider").append("svg").attr("class", "svg_slider").attr("width", "100%").attr("height", "100%");
+		
+		
+		//Line to represent the current value
+		var valueLine = svg_slider.append("line")
+			.style("stroke", color)
+			.style("stroke-linecap", "round")
+			.style("stroke-width", lineWidth)
+			.attr("x1", minValue)
+			.attr("x2", maxValue)
+			.attr("y1", 10)
+			.attr("y2", 10);
+		
+		var emptyLine = svg_slider.append("line")
+			.style("stroke", emptyColor)
+			.style("stroke-linecap", "round")
+			.style("stroke-width", lineWidth)
+			.attr("x1", minValue)
+			.attr("x2", maxValue)
+			.attr("y1", 10)
+			.attr("y2", 10);
+			
+					
+					
+		//Draggable circle to represent the current value
+		var valueCircle = svg_slider.append("circle")
+			.attr("cx", minValue)
+			.attr("cy", 10)
+			.attr("r", thumbSize)
+			.style("stroke", "black")
+			.style("stroke-width", 1)
+			.style("fill", thumbColor)
+			.call(d3.drag().on("drag", dragEnded));
+
+	
+		function dragEnded() {
+			selectedValue = d3.event.x;
+
+			if (selectedValue < minValue)
+				selectedValue = minValue;
+			else if (selectedValue > maxValue)
+				selectedValue = maxValue;
+
+			NormValue = selectedValue / width;
+			valueCircle.attr("cx", selectedValue);
+			valueLine.attr("x2", width * NormValue);
+			emptyLine.attr("x1", width * NormValue);
+			
+			var old_num_bins = cur_num_bins;
+			cur_num_bins = parseInt(2 + (NormValue * 8));
+			
+			if (cur_num_bins != old_num_bins) {
+				rt = compute_bins(data, col_name);
+				update_bar(col_name, rt[0], rt[1], NormValue);
+				update_pie(col_name, rt[0], rt[1], NormValue);
+			}
+		
+			d3.event.sourceEvent.stopPropagation();
+
+		}						
+	}
+	
+	function compute_bins(data, col_name) {
+		
+		var col2data = data.map(function(d) { return d[col_name] })		
+
+		var min = parseInt(Math.min.apply(Math, col2data));
+		var max = parseInt(Math.max.apply(Math, col2data));
+				
+		var binsize = parseInt((max - min) / cur_num_bins);
+		console.log(min);
+		console.log(binsize);
+		
+		
+		var bin_heights = {};
+
+		for (var i = 0; i < col2data.length; i++) {
+			if (col2data[i] == 0) continue;
+			
+			var cur_bin = parseInt((parseInt(col2data[i]) - min) / binsize);
+			
+			if (!(bin_heights.hasOwnProperty(cur_bin))) {
+				bin_heights[cur_bin] = 0;
+			}
+			bin_heights[cur_bin] = bin_heights[cur_bin] + 1;
+			
+			if (cur_bin == 2) {	console.log(","+col2data[i] + ",");}
+		} 
+		
+		return [d3.entries(bin_heights), binsize];
+		
+	}
+	
+	function update_bar(col_name, bin_h_l, binsize, fraction) {
+		
+		d3.select("#bar_chart").selectAll(".x_axis").remove();
+		d3.select("#bar_chart").selectAll(".y_axis").remove();
+		
+		d3.select("#bar_chart").selectAll(".svg_bar").remove();
+		
+		var svg_bar = null;
+		
+		var firstTime = d3.select("#bar_chart").selectAll(".svg_bar").empty();
+		if (Boolean(firstTime)) {
+			svg_bar = d3.select("#bar_chart").append("svg").attr("class", "svg_bar").attr("width", "100%").attr("height", "100%");
+		} else {
+			svg_bar = d3.select("#bar_chart").selectAll(".svg_bar").attr("width", "100%").attr("height", "100%");
+		}		
+		
+		width = 900
+		height = 500;
+		var color = d3.scaleOrdinal(d3.schemeCategory10);
+		
+		var g_bar = null;
+		
+		if (Boolean(firstTime)) {
+			g_bar = svg_bar.append("g").attr("width", width).attr("height", height).attr("transform", "translate(" + 100 + "," + 100 + ")");	
+		} else {
+			g_bar = svg_bar.selectAll("g").attr("width", width).attr("height", height).attr("transform", "translate(" + 100 + "," + 100 + ")");
+		}
+
+		var xScale = d3.scaleBand().range([0, width]).padding(0.4);
+		var yScale = d3.scaleLinear().range([height, 0]);
+		
+		xScale.domain(bin_h_l.map(function(d) { return d.key; })); 
+		yScale.domain([0, d3.max(bin_h_l, function(d) { return d.value; })]);
+				
+		
+		function onMouseOver(d, i) {
+			d3.select(this).attr('class', 'highlight'); 
+			d3.select(this)
+			  .transition()
+			  .duration(400)
+			  .attr('width', xScale.bandwidth() + 5)
+			  .attr("y", function(d) { return yScale(d.value) - 10; })
+			  .attr("height", function(d) { return height - yScale(d.value) + 10; });
+
+			g_bar.append("text")
+			 .attr('class', 'val')
+			 .attr('x', function() {
+				 return xScale(d.key);
+			 })
+			 .attr('y', function() {
+				 return yScale(d.value) - 15;
+			 })
+			 .text(function() {
+				 return [+d.value];
+			 });
+		}
+		
+		//mouseout event handler function
+		function onMouseOut(d, i) {
+			// use the text label class to remove label on mouseout
+			d3.select(this).attr('class', 'bar');
+			d3.select(this)
+			  .transition()     // adds animation
+			  .duration(400)
+			  .attr('width', xScale.bandwidth())
+			  .attr("y", function(d) { return yScale(d.value); }) // What if we don't again fix this Value ?
+			  .attr("height", function(d) { return height - yScale(d.value); }); // Play with changing the Value
+
+			d3.selectAll('.val')
+			  .remove()
+		}
+		
+		
+		//selectallrect.data.transition.delay.duration.ease(d3.easeBounceOut).attr(y).attr(height).attr(fill)
+		g_bar.selectAll(".bar")
+			.data(bin_h_l)
+			.enter().append("rect")
+			.attr("class", "bar")
+			.on("mouseover", onMouseOver) //On selection of bar elements, two new event handlers added, viz. mouseover and mouseout and we are calling the respective functions to handle mouse events
+			.on("mouseout", onMouseOut) 
+			.attr("x", function(d) { return xScale(d.key); })
+			.attr("y", function(d) { return yScale(d.value); })
+			.attr("width", xScale.bandwidth())
+			.transition()     // adds animation
+			.duration(200)
+			.attr('fill', (d,i) => color(i))
+			.attr("height", function(d) { return height - yScale(d.value); });
+			
+		 
+		g_bar.append("g") //Another group element to have our x-axis grouped under one group element
+			.attr("transform", "translate(0," + height + ")") // We then use the transform attribute to shift our x-axis towards the bottom of the SVG.
+			.attr("class", "x_axis")
+			.call(d3.axisBottom(xScale).tickFormat(function(d){ // Try with X Scaling too.
+				 return  d*binsize + " - " + (parseInt(parseInt(d)+1)*binsize);
+				 
+			 })) //We then insert x-axis on this group element using .call(d3.axisBottom(x)).
+			.append("text")
+			.attr("y", height - 465)
+			.attr("x", width)
+			.attr("text-anchor", "end")
+			.attr("stroke", "black")
+			.text(col_name);
+
+		g_bar.append("g") //Another group element to have our y-axis grouped under one group element
+			.call(d3.axisLeft(yScale).tickFormat(function(d) {
+			 return d;
+			})
+			.ticks(10))
+			.attr("class", "y_axis")
+			.append("text")
+			.attr("transform", "rotate(-90)")
+			.attr("y", 6)
+			.attr("dy", "-5.1em")
+			.attr("text-anchor", "end")
+			.attr("stroke", "black")
+			.text("Count");			 
+	}
+
+	
+	function update_pie(col_name, bin_h_l, binsize, fraction) {
+		d3.select("#pie_chart").selectAll(".svg_pie").remove();
+		d3.select("#pie_chart").selectAll(".legend").remove();
+		
+		var width = 1100;
+		var height = 500;
+		var radius = Math.min(width, height) / 2;
+		var margin_top = 80;
+		var color = d3.scaleOrdinal(d3.schemeCategory10);
+		
+		var svg_pie = d3.select("#pie_chart")
+			.append('svg')
+			.attr("class", "svg_pie")
+			.attr('width', width)
+			.attr('height', "100%");
+
+		var g = svg_pie.append('g')
+		.attr('transform', 'translate(' + (width/2) + ',' + (height/2 + margin_top) + ')');
+		
+		var arc = d3.arc()
+		.innerRadius(0)
+		.outerRadius(radius);
+		
+		var label = d3.arc()
+		.outerRadius(radius - 100)
+		.innerRadius(radius - 100);
+
+		var pie = d3.pie()
+		.value(function(d) { return d.value; })
+		.sort(null);
+
+		var path = g.selectAll('path')
+		    .data(pie(bin_h_l))
+		    .enter()
+		    .append("g")  
+		    .append('path')
+		    .attr('d', arc)
+		    .attr('fill', (d,i) => color(i))
+		    .style('opacity', .8)
+		    .style('stroke', 'white')
+		    .each(function(d, i) { this._current = i; });
+
+
+		let legend = d3.select("#pie_chart").append('div')
+			.attr('class', 'legend')
+			.style('margin-top', '-630px')
+			.style('margin-left', '960px');
+
+		let keys = legend.selectAll('.key')
+			.data(bin_h_l)
+			.enter().append('div')
+			.attr('class', 'key')
+			.style('display', 'flex')
+			.style('align-items', 'center')
+			.style('margin-right', '20px');
+
+		keys.append('div')
+			.attr('class', 'symbol')
+			.style('height', '10px')
+			.style('width', '10px')
+			.style('margin', '5px 5px')
+			.style('background-color', (d, i) => color(i));
+
+		keys.append('div')
+			.attr('class', 'name')
+			.text(d => `${d.key*binsize + " - " + (parseInt(parseInt(d.key)+1)*binsize)} (${d.value})`);
+
+	}
+	
+	function init_force(col_number) {
+		
+		if (col_number > 2) return;
+		
+		d3.select("#force_directed_graph").selectAll(".svg_force_directed").remove();
+	
+		function dragstarted(d) {
+		  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+		  d.fx = d.x;
+		  d.fy = d.y;
+		}
+
+		function dragged(d) {
+		  d.fx = d3.event.x;
+		  d.fy = d3.event.y;
+		}
+
+		function dragended(d) {
+		  if (!d3.event.active) simulation.alphaTarget(0);
+		  d.fx = null;
+		  d.fy = null;
+		}
+	
+	
+		var width = 1000;
+		var height = 600;
+		
+		svg_fd = d3.select("#force_directed_graph").append("svg").attr("class", "svg_force_directed").attr("width", width).attr("height", height);
+
+		var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+		var simulation = d3.forceSimulation()
+			.force("link", d3.forceLink().id(function(d) { return d.id; }))
+			.force("charge", d3.forceManyBody())
+			.force("center", d3.forceCenter(width / 2, height / 2));
+
+		d3.json("data/"+col_number+".json", function(error, graph) {
+		  if (error)
+		  {
+			console.log(error)
+			throw error;
+		  }
+
+		  var link = svg_fd.append("g")
+			  .attr("class", "links")
+			.selectAll("line")
+			.data(graph.links)
+			.enter().append("line")
+			.attr("stroke-width", function(d) { return 1; });
+
+		  var node = svg_fd.append("g")
+			  .attr("class", "nodes")
+			.selectAll("g")
+			.data(graph.nodes)
+			.enter().append("g");
+
+		  var circles = node.append("circle")
+			  .attr("r", 5)
+			  .attr("fill", function(d) { return color(d.group); })
+			  .call(d3.drag()
+				  .on("start", dragstarted)
+				  .on("drag", dragged)
+				  .on("end", dragended));
+
+
+		  var lables = node.append("text")
+			  .text(function(d) {
+				return parseInt(d.id);
+			  })
+			  .attr('x', 6)
+			  .attr('y', 3);
+		  
+
+		  node.append("title")
+			  .text(function(d) { return d.id; });
+
+		  simulation
+			  .nodes(graph.nodes)
+			  .on("tick", ticked);
+
+		  simulation.force("link")
+			  .links(graph.links);
+
+		  function ticked() {
+			link
+				.attr("x1", function(d) { return d.source.x; })
+				.attr("y1", function(d) { return d.source.y; })
+				.attr("x2", function(d) { return d.target.x; })
+				.attr("y2", function(d) { return d.target.y; });
+
+			node
+				.attr("transform", function(d) {
+				  return "translate(" + d.x + "," + d.y + ")";
+				})
+		  }
+		});
+	}
+
+	d3.csv("data/diet.csv", function(err, data) {
+		var dataValues = d3.values(data)[0];
+		column_names = Object.keys(dataValues);
+		
+		var dropdown = d3.select("#dropdown")
+
+		dropdown.append("select")
+		.selectAll("option")
+			.data(column_names)
+			.enter()
+			.append("option")
+			.attr("value", (d) => {return d;})
+			.text((d) => {return d;});
+		
+		dropdown.on('change', function() {
+
+			// Find which fruit was selected from the dropdown
+			var col_name = d3.select(this)
+				.select("select")
+				.property("value");
+				
+			var selectedIndex = d3.select(this)
+				.select("select")
+				.property("selectedIndex");
+			
+			cur_num_bins = 2;
+			rt = compute_bins(data, col_name);
+			update_bar(col_name, rt[0], rt[1], 0);
+			update_pie(col_name, rt[0], rt[1], 0);
+			drawSlider(data, col_name);
+			
+			init_force(selectedIndex);
+		});
+		
+		//drawSlider(data, column_names[0]);				
+	});
+	
+</script>
+</body>
+</html>
