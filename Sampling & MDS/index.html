@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<style>
+	
+	body {
+		horizontal-align: middle;
+	}
+	.line_elbow {
+	  fill: none;
+	  stroke: #ffab00;
+	  stroke-width: 3;
+	}
+	
+	.line_cumulative {
+	  fill: none;
+	  stroke: #ff00ab;
+	  stroke-width: 3;
+	}
+
+	.dot_elbow {
+	  fill: #ffab00;
+	  stroke: #fff;
+	}
+	
+	.dot_highlight {
+	  fill: black;
+	  stroke: red;
+	  stroke-width: 5;
+	}
+	
+	.cell text {
+	  font-weight: bold;
+	  text-transform: capitalize;
+	}
+
+	.frame {
+	  fill: white;
+	  stroke: #aaa;
+	}
+
+	circle {
+	  fill-opacity: .7;
+	}
+
+	.axis line {
+	  stroke: #ddd;
+	}
+	
+	svg {
+		display: block;
+		margin: 0 auto;
+	}
+	
+	
+/* Absolute Center Spinner */
+.loading {
+  position: fixed;
+  z-index: 999;
+  height: 2em;
+  width: 2em;
+  overflow: visible;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+/* Transparent Overlay */
+.loading:before {
+  content: '';
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.3);
+}
+
+/* :not(:required) hides these rules from IE9 and below */
+.loading:not(:required) {
+  /* hide "loading..." text */
+  font: 0/0 a;
+  color: transparent;
+  text-shadow: none;
+  background-color: transparent;
+  border: 0;
+}
+
+.loading:not(:required):after {
+  content: '';
+  display: block;
+  font-size: 10px;
+  width: 1em;
+  height: 1em;
+  margin-top: -0.5em;
+  -webkit-animation: spinner 1500ms infinite linear;
+  -moz-animation: spinner 1500ms infinite linear;
+  -ms-animation: spinner 1500ms infinite linear;
+  -o-animation: spinner 1500ms infinite linear;
+  animation: spinner 1500ms infinite linear;
+  border-radius: 0.5em;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.75) 1.5em 0 0 0, rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) 0 1.5em 0 0, rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0, rgba(0, 0, 0, 0.5) -1.5em 0 0 0, rgba(0, 0, 0, 0.5) -1.1em -1.1em 0 0, rgba(0, 0, 0, 0.75) 0 -1.5em 0 0, rgba(0, 0, 0, 0.75) 1.1em -1.1em 0 0;
+  box-shadow: rgba(0, 0, 0, 0.75) 1.5em 0 0 0, rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) 0 1.5em 0 0, rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) -1.5em 0 0 0, rgba(0, 0, 0, 0.75) -1.1em -1.1em 0 0, rgba(0, 0, 0, 0.75) 0 -1.5em 0 0, rgba(0, 0, 0, 0.75) 1.1em -1.1em 0 0;
+}
+
+/* Animation */
+
+@-webkit-keyframes spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@-moz-keyframes spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@-o-keyframes spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.center-div-radio
+{
+     margin: 0 auto;
+		 text-align: center;
+}
+
+	
+	</style>
+  <title>CSE 564 Assignment 2</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  
+  <script type="text/javascript">
+  
+	var margin = {top: 60, right: 20, bottom: 30, left: 60},
+	width = 900 - margin.left - margin.right,
+	height = 600 - margin.top - margin.bottom;
+	elbow_graph_data = null;
+	
+		document.addEventListener("DOMContentLoaded", function(event) {
+		document.getElementById("spinner").style.display="none";
+		document.getElementById('buttons').style.display='none';
+		document.getElementById('buttons-2').style.display='none';
+  });
+	
+	
+	
+	function get_task_1(){
+	document.getElementById('buttons').style.display='none';
+	document.getElementById('buttons-2').style.display='none';
+	
+		d3.selectAll("svg").remove();
+
+
+		const Http = new XMLHttpRequest();
+		const url='http://127.0.0.1:5000/task_1';
+		Http.open("GET", url);
+		Http.send();
+		
+		n = 0;
+		
+		Http.onreadystatechange=(e)=>{
+
+			if(Http.readyState==4 && Http.status==200){
+			
+			
+				data=JSON.parse(Http.responseText)
+				console.log(data);
+				
+				elbow_graph_data = data.elbow;
+				n = elbow_graph_data.length;
+				
+				elbow_point = data.elbow_index;
+				
+			}
+		}
+		
+		setTimeout(function(){
+		
+
+			var xScale = d3.scaleLinear()
+			  .domain([2, n+1]) // input
+			  .range([0, width]); // output
+
+			var yScale = d3.scaleLinear()
+				.domain([1.4, 2.4]) // input
+				.range([height, 0]); // output
+
+			yScale.domain([1.4, d3.max(elbow_graph_data, function(d) { return d[1];})]);
+
+			var line = d3.line()
+				.x(function(d) { return xScale(d[0]); })
+				.y(function(d) { return yScale(d[1]); })
+				.curve(d3.curveMonotoneX) // apply smoothing to the line
+	  
+
+			var svg = d3.select("body").append("svg")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom)
+				.append("g")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			svg.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + height + ")")
+				.call(d3.axisBottom(xScale))
+				.append("text")
+				.attr("y", height - 480)
+				.attr("x", width)
+				.attr("text-anchor", "end")
+				.attr("stroke", "black")
+				.text("Number of centroids");
+				
+			svg.append("text")             
+			.attr("transform",
+            "translate(" + (width/2) + " ," + 
+                           (height + margin.top + 20) + ")")
+				.style("text-anchor", "middle")
+				.text("Date");
+
+			svg.append("g")
+				.attr("class", "y axis")
+				.call(d3.axisLeft(yScale))
+				.append("text")
+				.attr("transform", "rotate(-90)")
+				.attr("y", 22)
+				.attr("dy", "-5.1em")
+				.attr("text-anchor", "end")
+				.attr("stroke", "black")
+				.text("Sum of squares");
+				
+			var div = d3.select("body").append("div")
+		    .attr("class", "tooltip")
+		    .style("opacity", 0);
+
+			svg.append("path")
+				.datum(elbow_graph_data) 
+				.attr("class", "line_elbow")
+				.attr("d", line);
+
+			svg.selectAll(".dot")
+				.data(elbow_graph_data)
+				.enter().append("circle")
+				.attr("class", function(d){ return d[0]==elbow_point?"dot_highlight":"dot_elbow";})
+				.attr("cx", function(d) { return xScale(d[0]) })
+				.attr("cy", function(d) { return yScale(d[1]) })
+				.attr("r", 5)
+				.on("mouseover", function(d) {
+					div.transition()
+						.duration(200)
+						.style("opacity", .9);
+					div	.html("X: "+d[0] + "<br/>"  + "Y: "+d[1])
+					.style("left", (d3.event.pageX) + "px")
+					.style("top", (d3.event.pageY - 28) + "px");
+					})
+				.on("mouseout", function(d) {
+					div.transition()
+						.duration(500)
+						.style("opacity", 0);
+				});
+				
+				
+				svg.append("text")
+				.attr("x", (width / 2))             
+				.attr("y", 0 - (margin.top / 2))
+				.attr("text-anchor", "middle")  
+				.style("font-size", "16px")
+				.text("K means Elbow plot for Stratified Sampling");
+				document.getElementById("spinner").style.display="none";
+		}, 4000);
+	}
+		
+	function get_task_2(){
+	document.getElementById('buttons').style.display='block';
+	document.getElementById('buttons-2').style.display='none';
+	
+	
+		const Http = new XMLHttpRequest();
+		const url='http://127.0.0.1:5000/task_2';
+		Http.open("GET", url);
+		Http.send();
+		
+		cumulative_all = 0;
+		ratio_all = 0;
+		
+		cumulative_strat = 0;
+		ratio_strat = 0;
+		
+		
+		Http.onreadystatechange=(e)=>{
+
+			if(Http.readyState==4 && Http.status==200) {
+			
+				data = JSON.parse(Http.responseText)
+				console.log(data);
+				
+				cumulative_all = data.cumu_all;
+				ratio_all = data.scree_all;
+				
+				cumulative_strat = data.cum_strat;
+				ratio_strat = data.scree_strat;
+				
+				top_attributes = data.top_attributes
+				
+				n = cumulative_all.length;
+				
+				
+				
+			}
+		}
+		
+		setTimeout(function(){
+		
+		document.getElementById("task_2").innerHTML = "Top 3 attributes are : " + top_attributes;
+		
+		if(document.getElementById("without_sampling").checked==true){
+		
+		d3.selectAll("svg").remove();
+
+	  // 5. X scale will use the index of our data
+			var xScale = d3.scaleLinear()
+			  .domain([0, n+1]) // input
+			  .range([0, width]); // output
+
+	  // 6. Y scale will use the randomly generate number
+			var yScale = d3.scaleLinear()
+				.domain([0, 1.2]) // input
+				.range([height, 0]); // output
+
+			yScale.domain([0, d3.max(cumulative_all, function(d) { return d[1];})]);
+
+	  // 7. d3's line generator
+			var line = d3.line()
+				.x(function(d) { return xScale(d[0]); }) // set the x values for the line generator
+				.y(function(d) { return yScale(d[1]); }) // set the y values for the line generator
+				.curve(d3.curveMonotoneX) // apply smoothing to the line
+				
+			  var line2 = d3.line()
+				  .x(function(d) { return xScale(d[0]); }) // set the x values for the line generator
+				  .y(function(d) { return yScale(d[1]); }) // set the y values for the line generator
+				  .curve(d3.curveMonotoneX) 
+
+	  
+
+	  // 1. Add the SVG to the page and employ #2
+			var svg = d3.select("body").append("svg")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom)
+				.append("g")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+				.attr("id", "first_1");
+
+	  // 3. Call the x axis in a group tag
+			svg.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + height + ")")
+				.call(d3.axisBottom(xScale)) // Create an axis component with d3.axisBottom
+				.attr("id", "first_2")
+				.append("text")
+				.attr("y", height - 482)
+				.attr("x", width)
+				.attr("text-anchor", "end")
+				.attr("stroke", "black")
+				.text("Eigen vectors");
+
+	  // 4. Call the y axis in a group tag
+			svg.append("g")
+				.attr("class", "y axis")
+				.call(d3.axisLeft(yScale)) // Create an axis component with d3.axisLeft
+				.attr("id", "first_3")
+				.append("text")
+				.attr("transform", "rotate(-90)")
+				.attr("y", 22)
+				.attr("dy", "-5.1em")
+				.attr("text-anchor", "end")
+				.attr("stroke", "black")
+				.text("Explained Variance ratio");
+
+	  // 9. Append the path, bind the data, and call the line generator
+			svg.append("path")
+				.datum(ratio_all) // 10. Binds data to the line
+				.attr("class", "line_elbow") // Assign a class for styling
+				.attr("d", line) // 11. Calls the line generator
+				.attr("id", "first_3");
+
+				
+			svg.append("path")
+				.datum(cumulative_all) // 10. Binds data to the line
+				.attr("class", "line_cumulative") // Assign a class for styling
+				.attr("d", line2) // 11. Calls the line generator
+				.attr("id", "first_4");
+				
+		svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px")
+        .text("Scree plot")
+		.attr("class", "first");
+		
+		svg.append("text")
+        .attr("x", (width / 3))             
+        .attr("y", 115)
+		.style("fill", "ff00ab")
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px")
+        .text("Cumulative");
+		
+		svg.append("text")
+        .attr("x", (width / 3))             
+        .attr("y", 420)
+        .attr("text-anchor", "middle") 
+		.style("fill", "ffab00")
+        .style("font-size", "16px")
+        .text("Individual");
+				
+			}
+
+			
+				
+	if(document.getElementById("stratified_sampling").checked==true){
+	d3.selectAll("svg").remove();
+			var xScale = d3.scaleLinear()
+			  .domain([0, n+1]) // input
+			  .range([0, width]); // output
+
+	  // 6. Y scale will use the randomly generate number
+			var yScale = d3.scaleLinear()
+				.domain([0, 1.2]) // input
+				.range([height, 0]); // output
+
+			yScale.domain([0, d3.max(cumulative_strat, function(d) { return d[1];})]);
+
+	  // 7. d3's line generator
+			var line = d3.line()
+				.x(function(d) { return xScale(d[0]); }) // set the x values for the line generator
+				.y(function(d) { return yScale(d[1]); }) // set the y values for the line generator
+				.curve(d3.curveMonotoneX) // apply smoothing to the line
+				
+			  var line2 = d3.line()
+				  .x(function(d) { return xScale(d[0]); }) // set the x values for the line generator
+				  .y(function(d) { return yScale(d[1]); }) // set the y values for the line generator
+				  .curve(d3.curveMonotoneX) 
+
+
+	  // 1. Add the SVG to the page and employ #2
+			var svg = d3.select("body").append("svg")
+				.attr("width", width + margin.left + margin.right)
+				.attr("height", height + margin.top + margin.bottom)
+				.append("g")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	  // 3. Call the x axis in a group tag
+			svg.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + height + ")")
+				.call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
+
+	  // 4. Call the y axis in a group tag
+			svg.append("g")
+				.attr("class", "y axis")
+				.call(d3.axisLeft(yScale)); // Create an axis component with d3.axisLeft
+
+	  // 9. Append the path, bind the data, and call the line generator
+			svg.append("path")
+				.datum(ratio_strat) // 10. Binds data to the line
+				.attr("class", "line_elbow") // Assign a class for styling
+				.attr("d", line); // 11. Calls the line generator
+
+				
+			svg.append("path")
+				.datum(cumulative_strat) // 10. Binds data to the line
+				.attr("class", "line_cumulative") // Assign a class for styling
+				.attr("d", line2) // 11. Calls the line generator
+		svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px")
+        .text("Scree plot");
+		
+		
+		svg.append("text")
+        .attr("x", (width / 3))             
+        .attr("y", 115)
+		.style("fill", "ff00ab")
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px")
+        .text("Cumulative");
+		
+		svg.append("text")
+        .attr("x", (width / 3))             
+        .attr("y", 420)
+        .attr("text-anchor", "middle") 
+		.style("fill", "ffab00")
+        .style("font-size", "16px")
+        .text("Individual");
+		
+		
+		}
+	document.getElementById("spinner").style.display="none";
+		}, 6000);
+	}
+	
+	function get_task_3(url2){
+	document.getElementById('buttons').style.display='none';
+	document.getElementById('buttons-2').style.display='block';
+	
+		d3.selectAll("svg").remove();
+	
+		const Http = new XMLHttpRequest();
+		const url= url2;
+		Http.open("GET", url);
+		Http.send();
+		
+
+		scatter_matrix_data = 0;
+		euclidean_data = 0;
+		pca_projection_data = 0;
+		correlation_data = 0;
+		
+		Http.onreadystatechange=(e)=>{
+
+			if(Http.readyState==4 && Http.status==200){
+			
+				data = JSON.parse(Http.responseText)
+				console.log(data);
+				
+				scatter_matrix_data = data.scatter_matrix_top_3;
+				euclidean_data = data.euclidean_2d;
+				pca_projection_data = data.data_projections;
+				correlation_data = data.correlation_2d;
+			}
+		}
+		
+		setTimeout(function(){
+		
+			console.log("set timeout called");
+			
+			var padding = 20;
+			var size = 200;
+
+			var x = d3.scaleLinear()
+				.range([padding / 2, size - padding / 2]);
+
+			var y = d3.scaleLinear()
+				.range([size - padding / 2, padding / 2]);
+
+			var xAxis = d3.axisBottom()
+				.scale(x)
+				.ticks(6);
+
+			var yAxis = d3.axisLeft()
+				.scale(y)
+				.ticks(6);
+
+			var color = d3.scaleOrdinal(d3.schemeCategory10);
+			
+			var domainByTrait = {},
+				  traits = d3.keys(scatter_matrix_data[0]).filter(function(d) { return d; }),
+				  n = traits.length;
+
+			traits.forEach(function(trait) {
+				domainByTrait[trait] = d3.extent(scatter_matrix_data, function(d) { return d[trait]; });
+			});
+
+			console.log(domainByTrait)
+
+			xAxis.tickSize(size * n);
+			yAxis.tickSize(-size * n);
+
+
+			  var svg = d3.select("body").append("svg")
+				  .attr("width", size * n + padding)
+				  .attr("height", size * n + padding)
+				.append("g")
+				  .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
+
+			  svg.selectAll(".x.axis")
+				  .data(traits)
+				.enter().append("g")
+				  .attr("class", "x axis")
+				  .attr("transform", function(d, i) { return "translate(" + (n - i - 1) * size + ",0)"; })
+				  .each(function(d) { x.domain(domainByTrait[d]); d3.select(this).call(xAxis); });
+
+			  svg.selectAll(".y.axis")
+				  .data(traits)
+				.enter().append("g")
+				  .attr("class", "y axis")
+				  .attr("transform", function(d, i) { return "translate(0," + i * size + ")"; })
+				  .each(function(d) { y.domain(domainByTrait[d]); d3.select(this).call(yAxis); });
+				  
+				  svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px")  
+        .text("Scatter matrix for top 3 attributes");
+		document.getElementById("task_3").style.display="block";
+
+				  var cell = svg.selectAll(".cell")
+					  .data(cross(traits, traits))
+					.enter().append("g")
+					  .attr("class", "cell")
+					  .attr("transform", function(d) { return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")"; })
+					  .each(plot);
+
+				  // Titles for the diagonal.
+				  cell.filter(function(d) { return d.i === d.j; }).append("text")
+					  .attr("x", padding)
+					  .attr("y", padding)
+					  .attr("dy", ".71em")
+					  .text(function(d) { return d.x; });
+
+				  function plot(p) {
+					var cell = d3.select(this);
+
+					x.domain(domainByTrait[p.x]);
+					y.domain(domainByTrait[p.y]);
+
+					cell.append("rect")
+						.attr("class", "frame")
+						.attr("x", padding / 2)
+						.attr("y", padding / 2)
+						.attr("width", size - padding)
+						.attr("height", size - padding);
+
+					cell.selectAll("circle")
+						.data(scatter_matrix_data)
+					  .enter().append("circle")
+						.attr("cx", function(d) { return x(d[p.x]); })
+						.attr("cy", function(d) { return y(d[p.y]); })
+						.attr("r", 2)
+						.style("fill", function(d) { return color("black"); });
+				}
+
+				function cross(a, b) {
+				  var c = [], n = a.length, m = b.length, i, j;
+				  for (i = -1; ++i < n;) for (j = -1; ++j < m;) c.push({x: a[i], i: i, y: b[j], j: j});
+				  return c;
+				}
+				
+				
+				var x = d3.scaleLinear()
+					.range([0, width]);
+
+				var y = d3.scaleLinear()
+					.range([height, 0]);
+
+				var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+				var xAxis = d3.axisBottom(x);
+
+				var yAxis = d3.axisLeft(y);
+
+				var svg = d3.select("body").append("svg")
+					.attr("width", width + margin.left + margin.right)
+					.attr("height", height + margin.top + margin.bottom)
+				  .append("g")
+					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+					
+				x.domain(d3.extent(euclidean_data, function(d) { return d.x; })).nice();
+				  y.domain(d3.extent(euclidean_data, function(d) { return d.y; })).nice();
+
+				  svg.append("g")
+					  .attr("class", "x axis")
+					  .attr("transform", "translate(0," + height + ")")
+					  .call(xAxis);
+
+				  svg.append("g")
+					  .attr("class", "y axis")
+					  .call(yAxis);
+				  svg.selectAll(".dot")
+					  .data(euclidean_data)
+					.enter().append("circle")
+					  .attr("class", "dot")
+					  .attr("r", 3.5)
+					  .attr("cx", function(d) { return x(d.x); })
+					  .attr("cy", function(d) { return y(d.y); })
+					  .style("fill", function(d) { return color("black"); });
+					  
+					svg.append("text")
+			.attr("x", (width / 2))             
+			.attr("y", 0 - (margin.top / 2))
+			.attr("text-anchor", "middle")  
+			.style("font-size", "16px") 
+			.text("MDS on euclidean distances of top 2 attributes");
+
+					  
+					  
+					var x = d3.scaleLinear()
+						.range([0, width]);
+
+					var y = d3.scaleLinear()
+						.range([height, 0]);
+
+					var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+					var xAxis = d3.axisBottom(x);
+
+					var yAxis = d3.axisLeft(y);
+
+					var svg = d3.select("body").append("svg")
+						.attr("width", width + margin.left + margin.right)
+						.attr("height", height + margin.top + margin.bottom)
+					  .append("g")
+						.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+						
+					x.domain(d3.extent(correlation_data, function(d) { return d.x; })).nice();
+					  y.domain(d3.extent(correlation_data, function(d) { return d.y; })).nice();
+
+					  svg.append("g")
+						  .attr("class", "x axis")
+						  .attr("transform", "translate(0," + height + ")")
+						  .call(xAxis);
+
+					  svg.append("g")
+						  .attr("class", "y axis")
+						  .call(yAxis);
+
+					  svg.selectAll(".dot")
+						  .data(correlation_data)
+						.enter().append("circle")
+						  .attr("class", "dot")
+						  .attr("r", 3.5)
+						  .attr("cx", function(d) { return x(d.x); })
+						  .attr("cy", function(d) { return y(d.y); })
+						  .style("fill", function(d) { return color("black"); });
+						  
+						 svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .text("MDS on correlation matrix of top 2 attributes");
+						  
+						  
+					var x = d3.scaleLinear()
+						.range([0, width]);
+
+					var y = d3.scaleLinear()
+						.range([height, 0]);
+
+					var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+					var xAxis = d3.axisBottom(x);
+
+					var yAxis = d3.axisLeft(y);
+
+					var svg = d3.select("body").append("svg")
+						.attr("width", width + margin.left + margin.right)
+						.attr("height", height + margin.top + margin.bottom)
+					  .append("g")
+						.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+						
+					x.domain(d3.extent(pca_projection_data, function(d) { return d.PCA_1; })).nice();
+					y.domain(d3.extent(pca_projection_data, function(d) { return d.PCA_2; })).nice();
+
+					  svg.append("g")
+						  .attr("class", "x axis")
+						  .attr("transform", "translate(0," + height + ")")
+						  .call(xAxis);
+
+					  svg.append("g")
+						  .attr("class", "y axis")
+						  .call(yAxis);
+
+					  svg.selectAll(".dot")
+						  .data(pca_projection_data)
+						.enter().append("circle")
+						  .attr("class", "dot")
+						  .attr("r", 3.5)
+						  .attr("cx", function(d) { return x(d.PCA_1); })
+						  .attr("cy", function(d) { return y(d.PCA_2); })
+						  .style("fill", function(d) { return color("black"); });
+						  
+					svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .text("Data projection on largest 2 Eigen vectors");
+
+				document.getElementById("spinner").style.display="none";
+			}, 29000);
+		
+		}
+
+	</script>
+  
+</head>
+<body background="bg.jpg">
+
+<div class="container">
+
+	<h2 style="margin-top: 30px">National Health and Nutrition Examination Diet Survey 2013</h2>
+	<p style="margin-top: 15px">The National Center for Health Statistics is a principal agency of the U.S. Federal Statistical System which provides statistical information to guide actions and policies to improve the health of the American people.</p>
+
+    <ul class="nav nav-tabs">
+    <li><a data-toggle="tab" href="#task1">Task 1</a></li>
+    <li><a data-toggle="tab" href="#task2">Task 2</a></li>
+    <li><a data-toggle="tab" href="#task3">Task 3</a></li>
+  </ul>
+
+  <div class="tab-content">
+    <div id="task1" class="tab-pane fade">
+      <p id = "task_1"></p>
+    </div>
+    <div id="task2" class="tab-pane fade">
+      <p id = "task_2" style="color:red;font-size:20px"></p>
+    </div>
+    <div id="task3" class="tab-pane fade">
+      <p id = "task_3"  align="center"; style="font-size:16px; padding:20px"> MDS on correlation matrix of top 3 attributes</p>
+    </div>
+  </div>
+</div>
+
+<div class="center-div-radio" id='buttons'>
+	<input id='without_sampling' onChange="radio_select()" type="radio" name="type" value="random" checked="true"> Without Sampling&nbsp&nbsp
+	<input style="margin-left: 20px" id='stratified_sampling' onChange="radio_select()" type="radio" name="type" value="stratified"> Stratified Sampling
+</div>
+
+<div class="center-div-radio" id='buttons-2'>
+	<input id='without_sampling_2' onChange="radio_select2()" type="radio" name="type" value="random" checked="true"> Without Sampling&nbsp&nbsp
+	<input style="margin-left: 20px" id='stratified_sampling_2' onChange="radio_select2()" type="radio" name="type" value="stratified"> Stratified Sampling
+</div>
+<div id="spinner" class="loading">Loading&#8230;</div>
+
+<script type="text/javascript">
+
+document.getElementById("task_3").style.display = "none";
+
+function radio_select(){
+document.getElementById("task_3").style.display="none";
+document.getElementById("spinner").style.display="block"
+	get_task_2();
+}
+
+function radio_select2(){
+document.getElementById("task_3").style.display="none";
+document.getElementById("spinner").style.display="block"
+	if(document.getElementById("stratified_sampling_2").checked==true){
+		get_task_3('http://127.0.0.1:5000/task_3');
+	}
+	
+	if(document.getElementById("without_sampling_2").checked==true){
+		get_task_3('http://127.0.0.1:5000/task_3_0');
+	}
+}
+
+	$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+		var target = $(e.target).attr("href");
+		if ((target == '#task1')) {
+			document.getElementById("spinner").style.display="block";
+			get_task_1();
+		} else if ((target == '#task2')) {
+			document.getElementById("spinner").style.display="block";
+			document.getElementById("without_sampling").checked=true;
+			get_task_2();
+		} else if ((target == '#task3')) {
+		document.getElementById("without_sampling_2").checked=true;
+			document.getElementById("spinner").style.display="block";
+			get_task_3('http://127.0.0.1:5000/task_3');
+		}
+	});
+	
+</script>
+
+</body>
+</html>
